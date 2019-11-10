@@ -1,0 +1,27 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+//
+// Auto generated
+//
+namespace BaseClocks
+{
+    public static partial class DigitalClockUtility
+    {
+		internal readonly static string[] s_TimeCache = new string[]
+		{
+			<#
+			for(int hour = 0; hour < 24; hour++)
+			{
+				for(int min = 0; min < 60; min++)
+				{
+					#>
+						"<#=string.Format("{0:00}:{1:00}", hour, min)#>",
+					<#
+				}
+			}
+			#>
+		};
+	}
+}
