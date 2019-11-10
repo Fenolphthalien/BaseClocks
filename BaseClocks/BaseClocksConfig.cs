@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using Oculus.Newtonsoft.Json;
+using Oculus.Newtonsoft.Json.Serialization;
 using SMLHelper.V2.Options;
 using SMLHelper.V2.Utility;
 using UnityEngine;
@@ -42,6 +44,11 @@ namespace BaseClocks
         public static event EventHandler<DigitalClockFormat> OnFormatChanged;
         public static event EventHandler<Color> OnFaceColorChanged;
 
+        private JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
+        {
+            ContractResolver = new IgnorePropertiesContractResolver()
+        };
+
         public static DigitalClockFormat DigitalClockFormat
         {
             get
@@ -73,6 +80,8 @@ namespace BaseClocks
             if (PlayerPrefs.HasKey(k_ConfigPlayerPrefsKey))
             {
                 string json = PlayerPrefs.GetString(k_ConfigPlayerPrefsKey, string.Empty);
+                JsonSerializerSettings settings = new JsonSerializerSettings();
+
                 m_Instance = JsonConvert.DeserializeObject<BaseClocksConfig>(json);
             }
             else
@@ -100,7 +109,8 @@ namespace BaseClocks
 
         public static void Save()
         {
-           string json = JsonConvert.SerializeObject(m_Instance);
+           string json = JsonConvert.SerializeObject(m_Instance, m_Instance.SerializerSettings);
+           Debug.Log($"Serialised: {json}");
            PlayerPrefs.SetString(k_ConfigPlayerPrefsKey, json);
         }
 
@@ -108,6 +118,22 @@ namespace BaseClocks
         {
             DigitalClockFormat = DigitalClockFormat.TWELVE_HOUR;
             ClockFaceColor = k_DefaultColor;
+            Save();
+        }
+
+        public class IgnorePropertiesContractResolver : DefaultContractResolver
+        {
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var property = base.CreateProperty(member, memberSerialization);
+                property.ShouldSerialize = _ => ShouldSerialize(member);
+                return property;
+            }
+
+            private bool ShouldSerialize(MemberInfo member)
+            {
+                return member.MemberType != MemberTypes.Property;
+            }
         }
     }
 
@@ -139,6 +165,8 @@ namespace BaseClocks
                     BaseClocksConfig.ClockFaceColor = BaseClocksConfig.ClockFaceColor.SetBlue(e.Value);
                     break;
             }
+
+            BaseClocksConfig.Save();
         }
 
         private void OnChoiceChanged(object sender, ChoiceChangedEventArgs e)
@@ -150,6 +178,8 @@ namespace BaseClocks
                     BaseClocksConfig.DigitalClockFormat = format;
                     break;
             }
+
+            BaseClocksConfig.Save();
         }
 
         public override void BuildModOptions()
@@ -160,6 +190,8 @@ namespace BaseClocks
             {
                 digitalFormatStrings[i] = clockFormats[i].ToDisplayString();
             }
+
+            //TODO: Investigate way to add the unity colors plus the default colour as presets
 
             Color color = BaseClocksConfig.ClockFaceColor;
             AddChoiceOption(k_DigitalClockFormatChoiceId, "Digital Clock Time Format", digitalFormatStrings, (int)BaseClocksConfig.DigitalClockFormat);
