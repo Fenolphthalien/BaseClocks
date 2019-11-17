@@ -9,8 +9,6 @@ using System.Collections;
 
 namespace BaseClocks
 {
-    // TODO:
-    // Delete save data for any deconstructed clocks
     public abstract class BaseClock : HandTarget, IHandTarget, IProtoEventListener, IConstructable
     {
         private bool m_UseSystemTime;
@@ -133,12 +131,12 @@ namespace BaseClocks
 
                 File.Delete(oldDataPath);
                 Debug.Log($"Ported {prefabIdentifier.Id}");
-
-                return;
             }
-
-            string containerPath = Path.Combine("BaseClocks", $"{prefabIdentifier.Id}.json");
-            BaseClocksCoroutineRunner.Instance.StartCoroutine(DeserializeCoroutine(containerPath));
+            else
+            {
+                string containerPath = Path.Combine("BaseClocks", $"{prefabIdentifier.Id}.json");
+                BaseClocksCoroutineRunner.Instance.StartCoroutine(DeserializeCoroutine(containerPath));
+            }
         }
 
         private IEnumerator DeserializeCoroutine(string path)
