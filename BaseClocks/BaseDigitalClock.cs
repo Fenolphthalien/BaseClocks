@@ -62,15 +62,15 @@ namespace BaseClocks
 
             if (m_LastMinute != time.Minutes)
             {
-                switch(m_Format)
-                { 
+                switch (m_Format)
+                {
                     case DigitalClockFormat.TWELVE_HOUR:
-                    TimeSpan timeSpan = time;
-                    bool isMorning;
-                    time = DigitalClockUtility.TwentyFourHourToTwelveHourFormat(time, out isMorning);
-                    PeriodText.text = isMorning ? "AM" : "PM";
-                    break;
-                        }
+                        TimeSpan timeSpan = time;
+                        bool isMorning;
+                        time = DigitalClockUtility.TwentyFourHourToTwelveHourFormat(time, out isMorning);
+                        PeriodText.text = isMorning ? "AM" : "PM";
+                        break;
+                }
                 m_LastMinute = time.Minutes;
                 Text.text = DigitalClockUtility.EncodeMinHourToString(DigitalClockUtility.EncodeMinuteAndHour(time.Minutes, time.Hours));
             }
