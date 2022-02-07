@@ -81,15 +81,15 @@
   <ItemGroup>
     <Compile Include="BaseAnalogueClock.cs" />
     <Compile Include="BaseClock.cs" />
-    <Compile Include="BaseClocksCoroutineRunner.cs" />
     <Compile Include="BaseClocksConfig.cs" />
+    <Compile Include="BaseClocksCoroutineRunner.cs" />
     <Compile Include="BaseDigitalClock.cs" />
     <Compile Include="ColorExtensions.cs" />
     <Compile Include="DigitalClockUtility.cs" />
     <Compile Include="DigitalClockUtility.generated.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>DigitalClockUtility.generated.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="MarmoSpecEnum.cs" />
     <Compile Include="MaterialLogger.cs" />
@@ -104,12 +104,6 @@
     <Compile Include="TextWriterExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DigitalClockUtility.generated.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DigitalClockUtility.generated.cs</LastGenOutput>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +112,12 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DigitalClockUtility.generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DigitalClockUtility.generated.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

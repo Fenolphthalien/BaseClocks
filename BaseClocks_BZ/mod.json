@@ -1,0 +1,15 @@
+﻿{
+    "Id": "BaseClocks_BZ",
+    "DisplayName": "Base Clocks",
+    "Author": "Fenolphthalien",
+    "Version": "1.0.0",
+     "VersionDependencies": 
+    {
+        "SMLHelper": "2.12.1"
+    },
+    "Enable": true,
+    "AssemblyName": "BaseClocks_BZ.dll",
+    "EntryMethod": "BaseClocks_BZ.QPatch.Patch",
+    "Game": "BelowZero",
+    "Config": {}
+}
