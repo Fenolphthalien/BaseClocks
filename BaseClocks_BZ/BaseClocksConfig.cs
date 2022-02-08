@@ -68,7 +68,7 @@ namespace BaseClocks
         {
             get
             {
-                return m_Instance.m_ClockFaceColor;
+                return m_Instance?.m_ClockFaceColor ?? k_DefaultColor;
             }
             set
             {
@@ -262,23 +262,24 @@ namespace BaseClocks
 
         public override void BuildModOptions()
         {
+            Debug.Log("Building Base Clocks Options");
             Color color = BaseClocksConfig.ClockFaceColor;
             AddChoiceOption(k_DigitalClockFormatChoiceId, "Digital Clock Time Format", m_DigitalFormatChoiceStrings, (int)BaseClocksConfig.DigitalClockFormat);
 
+            Debug.Log("Format choice added");
             int presetIndex = Array.FindIndex(m_Presets, x => x.Color == color);
             if (presetIndex == -1)
             {
                 presetIndex = m_ColorPresetsChoiceStrings.Length - 1;
             }
 
+            Debug.Log("Preset Selected");
             AddChoiceOption(k_ColorPresetChoiceId, "Clock Face Colour Preset", m_ColorPresetsChoiceStrings, presetIndex);
             AddSliderOption(k_ColorSliderRedId, "Red", 0, 1f, color.r);
             AddSliderOption(k_ColorSliderGreenId, "Green", 0, 1f, color.g);
             AddSliderOption(k_ColorSliderBlueId, "Blue", 0, 1f, color.b);
 
-            uGUI_OptionsPanel optionsPanel = GameObject.FindObjectOfType<uGUI_OptionsPanel>();
-            Transform pane = optionsPanel.panesContainer.GetChild(FindChildWithText(optionsPanel.tabsContainer, "Mods").parent.GetSiblingIndex());
-            m_BaseClocksHeaderTransform = FindChildWithText(pane.Find("Viewport").GetChild(0), this.Name).parent;
+            Debug.Log("Sliders Added");
         }
 
         private Transform FindChildWithText(Transform root, string text)

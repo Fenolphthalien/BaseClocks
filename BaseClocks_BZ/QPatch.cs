@@ -1,7 +1,9 @@
 ﻿#if DEBUG
-#define kLOG
+#define LOG
 #define kINCLUDE_TEST_BUILDABLES
 #endif
+
+#define SKIP_DIGITAL
 
 using System.Collections.Generic;
 using System.Reflection;
@@ -24,7 +26,8 @@ using QModManager.API.ModLoading;
 
 namespace BaseClocks
 {
-    public class QPatch
+    [QModCore]
+    public static class QPatch
     {
         public static Harmony harmony;
 
@@ -57,10 +60,11 @@ namespace BaseClocks
 
             AssetBundle assetBundle = AssetBundle.LoadFromFile("./QMods/BaseClocks_BZ/clocks");
 
-            s_ModPath = "./QMods/BaseClocks";
-
+            s_ModPath = "./QMods/BaseClocks_BZ";
             GameObject sign = Resources.Load<GameObject>("Submarine/Build/Sign");
+#if !SKIP_DIGITAL
             Font signFont = sign.GetComponentInChildren<Text>(true).font;
+#endif
 
             Shader marmosetUber = Shader.Find("MarmosetUBER");
             Material marmosetUberMat = new Material(marmosetUber);
@@ -168,6 +172,7 @@ namespace BaseClocks
             Debug.Log("Patched analogueClockBuildable");
 
             //Digital clock
+#if !SKIP_DIGITAL
             GameObject digitalBaseClock = assetBundle.LoadAsset<GameObject>("Actual Time Digital Clock UGUI");
 
             SMLHelper.V2.Utility.PrefabUtils.AddBasicComponents(ref digitalBaseClock, k_ClassID_Digital);
@@ -205,6 +210,7 @@ namespace BaseClocks
             BaseClockBuildable digitalClockBuildable = new BaseClockBuildable(k_ClassID_Digital, "Digital Clock", "A Digital clock.", "digitalClock.png", digitalClock.gameObject, techData);
             digitalClockBuildable.Patch();
             Debug.Log("Patched digitalClockBuildable");
+#endif
 
 #if INCLUDE_TEST_BUILDABLES
             //Material balls.
@@ -343,7 +349,7 @@ namespace BaseClocks
 
         public static string GetOldSaveDirectory()
         {
-            return string.Concat(s_ModPath, "/BaseClocks/");
+            return string.Concat(s_ModPath, "/BaseClocks_BZ/");
         }
 
         private static void ApplySkyApplier(GameObject gameObject)
