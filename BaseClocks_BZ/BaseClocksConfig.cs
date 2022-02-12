@@ -183,7 +183,6 @@ namespace BaseClocks
         private string[] m_ColorPresetsChoiceStrings;
         private Dictionary<string, ColorPreset> m_NameToPreset;
 
-        private Transform m_BaseClocksHeaderTransform;
         private Dictionary<string, Component> m_IdToControl;
         private bool m_Syncronizing = false;
 
@@ -282,9 +281,11 @@ namespace BaseClocks
 
             Debug.Log("Preset Selected");
             AddChoiceOption(k_ColorPresetChoiceId, "Clock Face Colour Preset", m_ColorPresetsChoiceStrings, presetIndex);
-            AddSliderOption(k_ColorSliderRedId, "Red", 0, 1f, color.r);
-            AddSliderOption(k_ColorSliderGreenId, "Green", 0, 1f, color.g);
-            AddSliderOption(k_ColorSliderBlueId, "Blue", 0, 1f, color.b);
+
+            var defaultColor = BaseClocksConfig.k_DefaultColor;
+            AddSliderOption(k_ColorSliderRedId, "Red", 0, 1f, color.r, defaultColor.r, "{0:P0}", 0.01f);
+            AddSliderOption(k_ColorSliderGreenId, "Green", 0, 1f, color.g, defaultColor.g, "{0:P0}", 0.1f);
+            AddSliderOption(k_ColorSliderBlueId, "Blue", 0, 1f, color.b, defaultColor.b, "{0:P0}", 0.1f);
 
             Debug.Log("Options Added");
         }
