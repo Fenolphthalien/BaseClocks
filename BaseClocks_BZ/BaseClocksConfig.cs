@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using SMLHelper.V2.Json;
 using SMLHelper.V2.Options;
 using UnityEngine;
 using UnityEngine.UI;
@@ -203,6 +205,7 @@ namespace BaseClocks
             {
                 colorPresetsChoices.Add(colorPreset.DisplayName);
                 m_NameToPreset[colorPreset.DisplayName] = colorPreset;
+                Debug.Log($"{colorPreset.DisplayName} added");
             }
 
             colorPresetsChoices.Add("Custom");
@@ -216,17 +219,21 @@ namespace BaseClocks
                 return;
             }
 
+            Debug.Log($"{e.Id}: {e.Value}");
             switch (e.Id)
             {
                 case k_ColorSliderRedId:
+                    Debug.Log($"Red: {e.Value}");
                     BaseClocksConfig.ClockFaceColor = BaseClocksConfig.ClockFaceColor.SetRed(e.Value);
                     SetPresetChoiceToCustom();
                     break;
                 case k_ColorSliderGreenId:
+                    Debug.Log($"Green: {e.Value}");
                     BaseClocksConfig.ClockFaceColor = BaseClocksConfig.ClockFaceColor.SetGreen(e.Value);
                     SetPresetChoiceToCustom();
                     break;
                 case k_ColorSliderBlueId:
+                    Debug.Log($"Blue: {e.Value}");
                     BaseClocksConfig.ClockFaceColor = BaseClocksConfig.ClockFaceColor.SetBlue(e.Value);
                     SetPresetChoiceToCustom();
                     break;
@@ -279,44 +286,23 @@ namespace BaseClocks
             AddSliderOption(k_ColorSliderGreenId, "Green", 0, 1f, color.g);
             AddSliderOption(k_ColorSliderBlueId, "Blue", 0, 1f, color.b);
 
-            Debug.Log("Sliders Added");
-        }
-
-        private Transform FindChildWithText(Transform root, string text)
-        {
-            int index = -1;
-
-            for (int i = 0; i < root.childCount; i++)
-            {
-                Text textComponent = root.GetChild(i).GetComponentInChildren<Text>(true);
-                if (textComponent?.text == text)
-                {
-                    index = i;
-                    return textComponent.transform;
-                }
-            }
-
-            return null;
+            Debug.Log("Options Added");
         }
 
         private void SetPresetChoiceToCustom()
         {
-            if (m_IdToControl == null || m_IdToControl.ContainsValue(null))
-            {
-                CacheControls();
-            }
+            CacheControls();
 
             m_Syncronizing = true;
+            Debug.Log("[BaseClocks]Syncronizing");
             (m_IdToControl[k_ColorPresetChoiceId] as uGUI_Choice).value = m_ColorPresetsChoiceStrings.Length - 1;
             m_Syncronizing = false;
+            Debug.Log("[BaseClocks]Syncronizing Finished");
         }
 
         private void SyncronizeColorBars()
         {
-            if (m_IdToControl == null || m_IdToControl.ContainsValue(null))
-            {
-                CacheControls();
-            }
+            CacheControls();
 
             Color clockFace = BaseClocksConfig.ClockFaceColor;
             m_Syncronizing = true;
@@ -329,13 +315,21 @@ namespace BaseClocks
 
         private void CacheControls()
         {
-            m_IdToControl = new Dictionary<string, Component>();
+            if (m_IdToControl == null)
+            {
+                m_IdToControl = new Dictionary<string, Component>();
+            }
+            else
+            {
+                m_IdToControl.Clear();
+            }
 
-            int headerIndex = m_BaseClocksHeaderTransform.GetSiblingIndex();
-            m_IdToControl[k_ColorPresetChoiceId] = m_BaseClocksHeaderTransform.parent.GetChild(headerIndex + 2).GetComponentInChildren<uGUI_Choice>(true);
-            m_IdToControl[k_ColorSliderRedId] = m_BaseClocksHeaderTransform.parent.GetChild(headerIndex + 3).GetComponentInChildren<Slider>(true);
-            m_IdToControl[k_ColorSliderGreenId] = m_BaseClocksHeaderTransform.parent.GetChild(headerIndex + 4).GetComponentInChildren<Slider>(true);
-            m_IdToControl[k_ColorSliderBlueId] = m_BaseClocksHeaderTransform.parent.GetChild(headerIndex + 5).GetComponentInChildren<Slider>(true);
+            var optionsList = Options;
+
+            m_IdToControl[k_ColorPresetChoiceId] = optionsList.Find(x => x.Id == k_ColorPresetChoiceId).OptionGameObject.GetComponentInChildren<uGUI_Choice>(true);
+            m_IdToControl[k_ColorSliderRedId] = optionsList.Find(x => x.Id == k_ColorSliderRedId).OptionGameObject.GetComponentInChildren<Slider>(true);
+            m_IdToControl[k_ColorSliderGreenId] = optionsList.Find(x => x.Id == k_ColorSliderGreenId).OptionGameObject.GetComponentInChildren<Slider>(true);
+            m_IdToControl[k_ColorSliderBlueId] = optionsList.Find(x => x.Id == k_ColorSliderBlueId).OptionGameObject.GetComponentInChildren<Slider>(true);
         }
     }
 }

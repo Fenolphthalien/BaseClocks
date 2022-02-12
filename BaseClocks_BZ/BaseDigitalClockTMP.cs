@@ -1,27 +1,17 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System;
+using TMPro;
+using UnityEngine;
 
 namespace BaseClocks
 {
-    public enum DigitalClockFormat
-    {
-        TWELVE_HOUR,
-        TWENTY_FOUR_HOUR
-    };
-
     [ProtoContract]
-    [System.Obsolete]
-    public class BaseDigitalClock : BaseClock
+    class BaseDigitalClockTMP : BaseClock
     {
-        public Text Text;
-        public Text PeriodText;
+        public TextMeshProUGUI Text;
 
         private int m_LastMinute = -1;
         private DigitalClockFormat m_Format;
-
-        private static readonly Vector2 k_TwelveHourTextPosition = new Vector2(0.068f, 0);
 
         protected override void Start()
         {
@@ -44,17 +34,12 @@ namespace BaseClocks
         public void SetFormat(DigitalClockFormat format)
         {
             m_Format = format;
-
-            PeriodText.enabled = format == DigitalClockFormat.TWELVE_HOUR;
-
-            Text.rectTransform.localPosition = format == DigitalClockFormat.TWELVE_HOUR ? k_TwelveHourTextPosition : Vector2.zero;
             Text.fontSize = format == DigitalClockFormat.TWELVE_HOUR ? 25 : 32;
         }
 
-        public void SetFont(Font font)
+        public void SetFont(TMP_FontAsset font)
         {
             Text.font = font;
-            PeriodText.font = font;
         }
 
         protected override void Update()
@@ -66,14 +51,22 @@ namespace BaseClocks
                 switch (m_Format)
                 {
                     case DigitalClockFormat.TWELVE_HOUR:
-                        TimeSpan timeSpan = time;
                         bool isMorning;
                         time = DigitalClockUtility.TwentyFourHourToTwelveHourFormat(time, out isMorning);
-                        PeriodText.text = isMorning ? "AM" : "PM";
+                        if (isMorning)
+                        {
+                            Text.SetText("{0:00}:{1:00}<size=12>AM</size>", time.Hours, time.Minutes);
+                        }
+                        else
+                        {
+                            Text.SetText("{0:00}:{1:00}<size=12>PM</size>", time.Hours, time.Minutes);
+                        }
+                        break;
+                    default:
+                        Text.SetText("{0:00}:{1:00}", time.Hours, time.Minutes);
                         break;
                 }
                 m_LastMinute = time.Minutes;
-                Text.text = DigitalClockUtility.EncodeMinHourToString(DigitalClockUtility.EncodeMinuteAndHour(time.Minutes, time.Hours));
             }
         }
 

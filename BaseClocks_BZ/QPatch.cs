@@ -3,7 +3,7 @@
 #define kINCLUDE_TEST_BUILDABLES
 #endif
 
-#define SKIP_DIGITAL
+//#define SKIP_DIGITAL
 
 using System.Collections.Generic;
 using System.Reflection;
@@ -23,6 +23,8 @@ using System;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Assets;
 using QModManager.API.ModLoading;
+
+using TMPro;
 
 namespace BaseClocks
 {
@@ -59,15 +61,36 @@ namespace BaseClocks
             OptionsPanelHandler.RegisterModOptions(new BaseClocksModOptions());
 
             AssetBundle assetBundle = AssetBundle.LoadFromFile("./QMods/BaseClocks_BZ/clocks");
+            AssetBundle assetBundleTMP = AssetBundle.LoadFromFile("./QMods/BaseClocks_BZ/clocks_tmp");
 
             s_ModPath = "./QMods/BaseClocks_BZ";
-            GameObject sign = Resources.Load<GameObject>("Submarine/Build/Sign");
-#if !SKIP_DIGITAL
-            Font signFont = sign.GetComponentInChildren<Text>(true).font;
+            string signPath = Path.Combine(UnityEngine.Application.streamingAssetsPath, "aa/StandaloneWindows64/sign.prefab_bbd75a96527303177e643323ae1f51fb.bundle");
+            AssetBundle signAssetBundle = AssetBundle.LoadFromFile(signPath);
+#if LOG
+            foreach (string s in signAssetBundle.GetAllAssetNames())
+            {
+                Debug.Log(s);
+            }
 #endif
 
+
+#if !SKIP_DIGITAL
+            GameObject sign = signAssetBundle.LoadAsset<GameObject>("Assets/AddressableResources/Submarine/Build/Sign.prefab");
+            Debug.Log($"Sign loaded: {sign != null}");
+#if LOG
+            foreach (var component in sign.GetComponentsInChildren<Component>(true))
+            {
+                Debug.Log(component.GetType().Name);
+            }
+#endif
+            TMP_FontAsset signFontTmp = sign.GetComponentInChildren<TextMeshProUGUI>(true).font;
+
+#endif
+            Debug.Log("Finding Shaders");
             Shader marmosetUber = Shader.Find("MarmosetUBER");
             Material marmosetUberMat = new Material(marmosetUber);
+
+
 #if LOG
             string desktopPath = System.Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string fullpath = string.Concat(desktopPath, "/MarmosetUBERProperties.txt");
@@ -136,7 +159,9 @@ namespace BaseClocks
 #endif
 
             //Analogue clock
+            Debug.Log("Getting analogueClockBuildable");
             GameObject analogueBaseClock = assetBundle.LoadAsset<GameObject>("Actual Time Analog Clock UGUI");
+            Debug.Log("Patching analogueClockBuildable");
 
             SMLHelper.V2.Utility.PrefabUtils.AddBasicComponents(ref analogueBaseClock, k_ClassID);
 
@@ -173,11 +198,13 @@ namespace BaseClocks
 
             //Digital clock
 #if !SKIP_DIGITAL
-            GameObject digitalBaseClock = assetBundle.LoadAsset<GameObject>("Actual Time Digital Clock UGUI");
+            Debug.Log("Getting digitalClockBuildable");
+            GameObject digitalBaseClock = assetBundleTMP.LoadAsset<GameObject>("Actual Time Digital Clock TMP");
+            Debug.Log("Patching digitalClockBuildable");
 
             SMLHelper.V2.Utility.PrefabUtils.AddBasicComponents(ref digitalBaseClock, k_ClassID_Digital);
 
-            ReplaceMaterialShader(digitalBaseClock, marmosetUber);
+            ReplaceMaterialShader(digitalBaseClock, marmosetUber, true, true);
 
             ApplySkyApplier(digitalBaseClock);
 
@@ -195,10 +222,9 @@ namespace BaseClocks
 
             techTag = digitalBaseClock.AddComponent<TechTag>();
 
-            BaseDigitalClock digitalClock = digitalBaseClock.AddComponent<BaseDigitalClock>();
-            digitalClock.Text = digitalBaseClock.transform.GetChild(1).GetChild(0).GetComponent<Text>();
-            digitalClock.PeriodText = digitalBaseClock.transform.GetChild(1).GetChild(1).GetComponent<Text>();
-            digitalClock.SetFont(signFont);
+            BaseDigitalClockTMP digitalClock = digitalBaseClock.AddComponent<BaseDigitalClockTMP>();
+            digitalClock.Text = digitalBaseClock.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>();
+            digitalClock.SetFont(signFontTmp);
 
             techData = new RecipeData();
             techData.Ingredients.Add(new Ingredient(TechType.Titanium, 1));
@@ -443,7 +469,7 @@ namespace BaseClocks
 
         public override TechCategory CategoryForPDA => TechCategory.Misc;
 
-        public override string AssetsFolder => "/BaseClocks/Assets/";
+        public override string AssetsFolder => "/BaseClocks_BZ/Assets/";
 
         public override string IconFileName => m_IconName;
 

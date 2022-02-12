@@ -7,6 +7,7 @@ namespace BaseClocks
     {
         private const int k_TimeCacheLength = 1440;
 
+        [System.Obsolete]
         public static int EncodeMinuteAndHour(int minute, int hour)
         {
             return hour * 60 + minute;
@@ -26,13 +27,14 @@ namespace BaseClocks
             return new TimeSpan(hour, timeSpan.Minutes, timeSpan.Seconds);
         }
 
+        [System.Obsolete]
         public static string EncodeMinHourToString(int encoded)
         {
-            if (encoded >= 0 && encoded < k_TimeCacheLength)
-            {
-                return s_TimeCache[encoded];
-            }
-            return "Er:rr";
+            //if (encoded >= 0 && encoded < k_TimeCacheLength)
+            //{
+            //    return s_TimeCache[encoded];
+            //}
+            return "Ob:so";
         }
 
         public static string ToDisplayString(this DigitalClockFormat format)

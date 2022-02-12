@@ -59,6 +59,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Games\Steam\SteamApps\common\SubnauticaZero\SubnauticaZero_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>D:\Games\Steam\SteamApps\common\SubnauticaZero\SubnauticaZero_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
@@ -88,9 +92,9 @@
     <Compile Include="BaseClocksConfig.cs" />
     <Compile Include="BaseClocksCoroutineRunner.cs" />
     <Compile Include="BaseDigitalClock.cs" />
+    <Compile Include="BaseDigitalClockTMP.cs" />
     <Compile Include="ColorExtensions.cs" />
     <Compile Include="DigitalClockUtility.cs" />
-    <Compile Include="DigitalClockUtility.generated.cs" />
     <Compile Include="MarmoSpecEnum.cs" />
     <Compile Include="MaterialLogger.cs" />
     <Compile Include="PrintComponentFactory.cs" />
