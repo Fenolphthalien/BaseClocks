@@ -371,6 +371,8 @@ namespace BaseClocks
             Resources.UnloadAsset(medicalCabinet);
             MonoBehaviour.Destroy(marmosetUberMat);
 #endif
+            //The asset bundle should be unloaded otherwise it breaks the sign ingame
+            signAssetBundle.Unload(true);
         }
 
         public static string GetOldSaveDirectory()
