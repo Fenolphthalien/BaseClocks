@@ -118,19 +118,19 @@ namespace BaseClocks
         public void OnProtoDeserialize(ProtobufSerializer serializer)
         {
             PrefabIdentifier prefabIdentifier = GetComponent<PrefabIdentifier>();
-            Debug.Log($"Deserializing {prefabIdentifier.Id}");
+            Debug.Log($"[BaseClocks]Deserializing {prefabIdentifier.Id}");
             string oldDataPath = QPatch.GetOldSaveDirectory();
             oldDataPath = string.Concat(oldDataPath, prefabIdentifier.Id, ".json");
             //Port old data
             if (File.Exists(oldDataPath))
             {
-                Debug.Log($"Loading {prefabIdentifier.Id} from old data");
+                Debug.Log($"[BaseClocks]Loading {prefabIdentifier.Id} from old data");
                 BaseClockSaveData saveData = JsonConvert.DeserializeObject<BaseClockSaveData>(File.ReadAllText(oldDataPath));
                 m_UseSystemTime = saveData.usesSystemTime;
                 UseSystemTimeSet(m_UseSystemTime);
 
                 File.Delete(oldDataPath);
-                Debug.Log($"Ported {prefabIdentifier.Id}");
+                Debug.Log($"[BaseClocks]Ported {prefabIdentifier.Id}");
             }
             else
             {
@@ -141,7 +141,7 @@ namespace BaseClocks
 
         private IEnumerator DeserializeCoroutine(string path)
         {
-            Debug.Log($"trying to load {path}");
+            Debug.Log($"[BaseClocks]trying to load {path}");
             UserStorage userStorage = PlatformUtils.main.GetUserStorage();
             UserStorageUtils.LoadOperation loadOperation = userStorage.LoadFilesAsync(SaveLoadManager.main.GetCurrentSlot(), new List<string>() { path });
             yield return loadOperation;
@@ -153,7 +153,7 @@ namespace BaseClocks
                 m_UseSystemTime = saveData.usesSystemTime;
                 UseSystemTimeSet(m_UseSystemTime);
 
-                Debug.Log($"{path} loaded");
+                Debug.Log($"[BaseClocks]{path} loaded");
             }
         }
 

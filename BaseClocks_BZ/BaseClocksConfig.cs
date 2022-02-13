@@ -117,7 +117,7 @@ namespace BaseClocks
         public static void Save()
         {
            string json = JsonConvert.SerializeObject(m_Instance, m_Instance.SerializerSettings);
-           Debug.Log($"Serialised: {json}");
+           Debug.Log($"[BaseClocks]Serialised: {json}");
            PlayerPrefs.SetString(k_ConfigPlayerPrefsKey, json);
         }
 
@@ -204,7 +204,7 @@ namespace BaseClocks
             {
                 colorPresetsChoices.Add(colorPreset.DisplayName);
                 m_NameToPreset[colorPreset.DisplayName] = colorPreset;
-                Debug.Log($"{colorPreset.DisplayName} added");
+                Debug.Log($"[BaseClocks]{colorPreset.DisplayName} added");
             }
 
             colorPresetsChoices.Add("Custom");
@@ -218,21 +218,17 @@ namespace BaseClocks
                 return;
             }
 
-            Debug.Log($"{e.Id}: {e.Value}");
             switch (e.Id)
             {
                 case k_ColorSliderRedId:
-                    Debug.Log($"Red: {e.Value}");
                     BaseClocksConfig.ClockFaceColor = BaseClocksConfig.ClockFaceColor.SetRed(e.Value);
                     SetPresetChoiceToCustom();
                     break;
                 case k_ColorSliderGreenId:
-                    Debug.Log($"Green: {e.Value}");
                     BaseClocksConfig.ClockFaceColor = BaseClocksConfig.ClockFaceColor.SetGreen(e.Value);
                     SetPresetChoiceToCustom();
                     break;
                 case k_ColorSliderBlueId:
-                    Debug.Log($"Blue: {e.Value}");
                     BaseClocksConfig.ClockFaceColor = BaseClocksConfig.ClockFaceColor.SetBlue(e.Value);
                     SetPresetChoiceToCustom();
                     break;
@@ -268,18 +264,18 @@ namespace BaseClocks
 
         public override void BuildModOptions()
         {
-            Debug.Log("Building Base Clocks Options");
+            Debug.Log("[BaseClocks]Building Base Clocks Options");
             Color color = BaseClocksConfig.ClockFaceColor;
             AddChoiceOption(k_DigitalClockFormatChoiceId, "Digital Clock Time Format", m_DigitalFormatChoiceStrings, (int)BaseClocksConfig.DigitalClockFormat);
 
-            Debug.Log("Format choice added");
+            Debug.Log("[BaseClocks]Format choice added");
             int presetIndex = Array.FindIndex(m_Presets, x => x.Color == color);
             if (presetIndex == -1)
             {
                 presetIndex = m_ColorPresetsChoiceStrings.Length - 1;
             }
 
-            Debug.Log("Preset Selected");
+            Debug.Log("[BaseClocks]Preset Selected");
             AddChoiceOption(k_ColorPresetChoiceId, "Clock Face Colour Preset", m_ColorPresetsChoiceStrings, presetIndex);
 
             var defaultColor = BaseClocksConfig.k_DefaultColor;
@@ -287,7 +283,7 @@ namespace BaseClocks
             AddSliderOption(k_ColorSliderGreenId, "Green", 0, 1f, color.g, defaultColor.g, "{0:P0}", 0.1f);
             AddSliderOption(k_ColorSliderBlueId, "Blue", 0, 1f, color.b, defaultColor.b, "{0:P0}", 0.1f);
 
-            Debug.Log("Options Added");
+            Debug.Log("[BaseClocks]Options Added");
         }
 
         private void SetPresetChoiceToCustom()

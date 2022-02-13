@@ -25,6 +25,7 @@ using SMLHelper.V2.Assets;
 using QModManager.API.ModLoading;
 
 using TMPro;
+using System.Text.RegularExpressions;
 
 namespace BaseClocks
 {
@@ -64,8 +65,27 @@ namespace BaseClocks
             AssetBundle assetBundleTMP = AssetBundle.LoadFromFile("./QMods/BaseClocks_BZ/clocks_tmp");
 
             s_ModPath = "./QMods/BaseClocks_BZ";
-            string signPath = Path.Combine(UnityEngine.Application.streamingAssetsPath, "aa/StandaloneWindows64/sign.prefab_bbd75a96527303177e643323ae1f51fb.bundle");
-            AssetBundle signAssetBundle = AssetBundle.LoadFromFile(signPath);
+            string signAssetPundlePath = null;
+           
+            var dirs = Directory.GetFiles(UnityEngine.Application.streamingAssetsPath, "sign.*", SearchOption.AllDirectories);
+            Debug.Log($"[BaseClocks]Found {(dirs != null ? dirs.Length : 0)} potential sign asset bundle directory(s)");
+
+            foreach (string dir in dirs)
+            {
+                if (dir.Contains("\\sign.prefab"))
+                {
+                    signAssetPundlePath = dir.Replace("\\", "/");
+                    break;
+                }
+            }
+
+            AssetBundle signAssetBundle = null;
+            if (!string.IsNullOrEmpty(signAssetPundlePath))
+            {
+               signAssetBundle = AssetBundle.LoadFromFile(signAssetPundlePath);
+            }
+            
+            bool safeToLoadDigitalClock = !string.IsNullOrEmpty(signAssetPundlePath) && signAssetBundle != null;
 #if LOG
             foreach (string s in signAssetBundle.GetAllAssetNames())
             {
@@ -76,7 +96,7 @@ namespace BaseClocks
 
 #if !SKIP_DIGITAL
             GameObject sign = signAssetBundle.LoadAsset<GameObject>("Assets/AddressableResources/Submarine/Build/Sign.prefab");
-            Debug.Log($"Sign loaded: {sign != null}");
+            Debug.Log($"[BaseClocks]Sign loaded: {sign != null}");
 #if LOG
             foreach (var component in sign.GetComponentsInChildren<Component>(true))
             {
@@ -86,7 +106,7 @@ namespace BaseClocks
             TMP_FontAsset signFontTmp = sign.GetComponentInChildren<TextMeshProUGUI>(true).font;
 
 #endif
-            Debug.Log("Finding Shaders");
+            Debug.Log("[BaseClocks]Finding Shaders");
             Shader marmosetUber = Shader.Find("MarmosetUBER");
             Material marmosetUberMat = new Material(marmosetUber);
 
@@ -159,9 +179,9 @@ namespace BaseClocks
 #endif
 
             //Analogue clock
-            Debug.Log("Getting analogueClockBuildable");
+            Debug.Log("[BaseClocks]Getting analogueClockBuildable");
             GameObject analogueBaseClock = assetBundle.LoadAsset<GameObject>("Actual Time Analog Clock UGUI");
-            Debug.Log("Patching analogueClockBuildable");
+            Debug.Log("[BaseClocks]Patching analogueClockBuildable");
 
             SMLHelper.V2.Utility.PrefabUtils.AddBasicComponents(ref analogueBaseClock, k_ClassID);
 
@@ -194,48 +214,55 @@ namespace BaseClocks
 
             BaseClockBuildable analogueClockBuildable = new BaseClockBuildable(k_ClassID, "Analogue Clock", "An Analogue clock.", "analogueClock.png", analogueBaseClock.gameObject, techData);
             analogueClockBuildable.Patch();
-            Debug.Log("Patched analogueClockBuildable");
+            Debug.Log("[BaseClocks]Patched analogueClockBuildable");
 
             //Digital clock
 #if !SKIP_DIGITAL
-            Debug.Log("Getting digitalClockBuildable");
-            GameObject digitalBaseClock = assetBundleTMP.LoadAsset<GameObject>("Actual Time Digital Clock TMP");
-            Debug.Log("Patching digitalClockBuildable");
+            if (safeToLoadDigitalClock)
+            {
+                Debug.Log("[BaseClocks]Getting digitalClockBuildable");
+                GameObject digitalBaseClock = assetBundleTMP.LoadAsset<GameObject>("Actual Time Digital Clock TMP");
+                Debug.Log("[BaseClocks]Patching digitalClockBuildable");
 
-            SMLHelper.V2.Utility.PrefabUtils.AddBasicComponents(ref digitalBaseClock, k_ClassID_Digital);
+                SMLHelper.V2.Utility.PrefabUtils.AddBasicComponents(ref digitalBaseClock, k_ClassID_Digital);
 
-            ReplaceMaterialShader(digitalBaseClock, marmosetUber, true, true);
+                ReplaceMaterialShader(digitalBaseClock, marmosetUber, true, true);
 
-            ApplySkyApplier(digitalBaseClock);
+                ApplySkyApplier(digitalBaseClock);
 
-            constructable = digitalBaseClock.AddComponent<Constructable>();
+                constructable = digitalBaseClock.AddComponent<Constructable>();
 
-            constructable.allowedOnWall = true;
-            constructable.allowedInSub = true;
-            constructable.allowedOnGround = false;
-            constructable.allowedOutside = false;
-            constructable.model = digitalBaseClock.transform.GetChild(0).gameObject;
+                constructable.allowedOnWall = true;
+                constructable.allowedInSub = true;
+                constructable.allowedOnGround = false;
+                constructable.allowedOutside = false;
+                constructable.model = digitalBaseClock.transform.GetChild(0).gameObject;
 
-            DestroyPhysicsComponents(digitalBaseClock);
+                DestroyPhysicsComponents(digitalBaseClock);
 
-            constructableBounds = digitalBaseClock.AddComponent<ConstructableBounds>();
+                constructableBounds = digitalBaseClock.AddComponent<ConstructableBounds>();
 
-            techTag = digitalBaseClock.AddComponent<TechTag>();
+                techTag = digitalBaseClock.AddComponent<TechTag>();
 
-            BaseDigitalClockTMP digitalClock = digitalBaseClock.AddComponent<BaseDigitalClockTMP>();
-            digitalClock.Text = digitalBaseClock.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>();
-            digitalClock.SetFont(signFontTmp);
+                BaseDigitalClockTMP digitalClock = digitalBaseClock.AddComponent<BaseDigitalClockTMP>();
+                digitalClock.Text = digitalBaseClock.transform.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>();
+                digitalClock.SetFont(signFontTmp);
 
-            techData = new RecipeData();
-            techData.Ingredients.Add(new Ingredient(TechType.Titanium, 1));
-            techData.Ingredients.Add(new Ingredient(TechType.CopperWire, 1));
+                techData = new RecipeData();
+                techData.Ingredients.Add(new Ingredient(TechType.Titanium, 1));
+                techData.Ingredients.Add(new Ingredient(TechType.CopperWire, 1));
 
-            LanguageHandler.SetLanguageLine(BaseClock.k_SetGameTime, "Set to Normal Time");
-            LanguageHandler.SetLanguageLine(BaseClock.k_SetSystemTime, "Set to System Time");
+                LanguageHandler.SetLanguageLine(BaseClock.k_SetGameTime, "Set to Normal Time");
+                LanguageHandler.SetLanguageLine(BaseClock.k_SetSystemTime, "Set to System Time");
 
-            BaseClockBuildable digitalClockBuildable = new BaseClockBuildable(k_ClassID_Digital, "Digital Clock", "A Digital clock.", "digitalClock.png", digitalClock.gameObject, techData);
-            digitalClockBuildable.Patch();
-            Debug.Log("Patched digitalClockBuildable");
+                BaseClockBuildable digitalClockBuildable = new BaseClockBuildable(k_ClassID_Digital, "Digital Clock", "A Digital clock.", "digitalClock.png", digitalClock.gameObject, techData);
+                digitalClockBuildable.Patch();
+                Debug.Log("[BaseClocks]Patched digitalClockBuildable");
+            }
+            else
+            {
+                Debug.Log("[BaseClocks]Digital clock patching skipped as doing so will result in a crash");
+            }
 #endif
 
 #if INCLUDE_TEST_BUILDABLES
@@ -372,7 +399,10 @@ namespace BaseClocks
             MonoBehaviour.Destroy(marmosetUberMat);
 #endif
             //The asset bundle should be unloaded otherwise it breaks the sign ingame
-            signAssetBundle.Unload(true);
+            if (signAssetBundle != null)
+            {
+                signAssetBundle.Unload(true);
+            }
         }
 
         public static string GetOldSaveDirectory()
